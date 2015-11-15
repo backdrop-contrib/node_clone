@@ -12,16 +12,6 @@
 class views_handler_field_node_link_clone extends views_handler_field_node_link {
 
   /**
-   * Determine if this field can allow advanced rendering.
-   *
-   * Fields can set this to FALSE if they do not wish to allow
-   * token based rewriting or link-making.
-   */
-  function allow_advanced_render() {
-    return FALSE;
-  }
-
-  /**
    * Renders the link.
    */
   function render_link($node, $values) {
