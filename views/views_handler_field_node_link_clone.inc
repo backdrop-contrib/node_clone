@@ -22,8 +22,8 @@ class views_handler_field_node_link_clone extends views_handler_field_node_link 
 
     $this->options['alter']['make_link'] = TRUE;
     $this->options['alter']['path'] = "node/{$node->nid}/clone/" . clone_get_token($node->nid);
-    $method = variable_get('clone_method', 'prepopulate');
-    $destination = drupal_get_destination();
+    $method = config_get('clone.settings', 'clone_method');
+    $destination = backdrop_get_destination();
     if ($method == 'prepopulate') {
       $this->options['alter']['query'] = $destination;
     }

@@ -1,5 +1,63 @@
+Node Clone
+---------------------
 
-README file for the clone module for Drupal 7.x.
+The Clone module allows users to make a copy of an existing node and then edit
+that copy easily.  This module has also been used by some to facilitate node templating.
+
+CONTENTS OF THIS FILE
+---------------------
+
+ - Introduction
+ - Tested
+ - Known Issues
+ - Special Thanks
+ - Requirements
+ - Installation
+ - Coming From Drupal?
+ - Usage
+ - License
+ - Credits
+ - Maintainers
+
+TESTED
+-----
+
+Working in Backdrop 1.3 for cloning nodes, but not all the options/use-cases have been tested yet.
+
+KNOWN ISSUES
+---------------------
+
+The Rules and Views portions of this module have not been ported yet.
+
+SPECIAL THANKS
+--------------
+
+Peter Wolanin <https://www.drupal.org/u/pwolanin> for the initial setup.
+
+REQUIREMENTS
+------------
+
+none
+
+INSTALLATION
+------------
+
+Install this module using the official Backdrop CMS instructions at https://backdropcms.org/guide/modules
+
+Setup your options at: /admin/config/content/clone
+
+COMING FROM DRUPAL?
+-------------------
+
+Nothing very much different.
+
+PERMISSIONS
+------------
+
+none
+
+USAGE
+-----
 
 The clone module allows users to make a copy of an existing node and then edit
 that copy. The authorship is set to the current user, the menu and url aliases
@@ -45,10 +103,24 @@ field-level permissions hooks. You should test your configuration
 carefully or not allow access to the clone functionality for non-admins if
 you rely on field-level permissions for important site features.
 
-To install this module, copy the folder with all the files to the
-/sites/all/modules  OR /sites/default/modules directory of your Drupal
-installation and enable it at /admin/build/modules.  Two new permissions are
-available, but there are no changes to the database structure.
-
 Note: this module originally derived from code posted by Steve Ringwood
 (nevets@drupal) at http://drupal.org/node/73381#comment-137714
+
+LICENSE
+-------
+
+This project is GPL v2 software. See the LICENSE.txt file in this directory for complete text.
+
+CREDITS
+-----------
+
+Peter Wolanin <https://www.drupal.org/u/pwolanin>
+
+MAINTAINERS
+-----------
+
+- seeking
+
+Ported to Backdrop by:
+
+- biolithic <https://github.com/biolithic>

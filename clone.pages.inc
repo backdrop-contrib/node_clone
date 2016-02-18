@@ -17,12 +17,12 @@ function clone_settings($form, &$form_state) {
     '#type' => 'radios',
     '#title' => t('Method to use when cloning a node'),
     '#options' => array('prepopulate' => t('Pre-populate the node form fields'), 'save-edit' => t('Save as a new node then edit')),
-    '#default_value' => variable_get('clone_method', 'prepopulate'),
+    '#default_value' => config_get('clone.settings', 'clone_method'),
   );
   $form['basic']['clone_nodes_without_confirm'] = array(
     '#type' => 'radios',
     '#title' => t('Confirmation mode when using the "Save as a new node then edit" method'),
-    '#default_value' => (int)variable_get('clone_nodes_without_confirm', 0),
+    '#default_value' => (int)config_get('clone.settings', 'clone_nodes_without_confirm'),
     '#options' => array(t('Require confirmation (recommended)'), t('Bypass confirmation')),
     '#description' => t('A new node may be saved immediately upon clicking the "clone" link when viewing a node, bypassing the normal confirmation form.'),
     '#states' => array(
@@ -36,13 +36,13 @@ function clone_settings($form, &$form_state) {
     '#type' => 'radios',
     '#title' => t('Clone menu links'),
     '#options' => array(0 => t('No'), 1 => t('Yes')),
-    '#default_value' => (int) variable_get('clone_menu_links', 0),
+    '#default_value' => (int) config_get('clone.settings', 'clone_menu_links'),
     '#description' => t('Should any menu link for a node also be cloned?'),
   );
   $form['basic']['clone_use_node_type_name'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use node type name in clone link'),
-    '#default_value' => (int) variable_get('clone_use_node_type_name', 0),
+    '#default_value' => (int) config_get('clone.settings', 'clone_use_node_type_name'),
     '#description' => t('If checked, the link to clone the node will contain the node type name, for example, "Clone this article", otherwise it will read "Clone content".'),
   );
 
@@ -56,7 +56,7 @@ function clone_settings($form, &$form_state) {
     $form['publishing']['clone_reset_' . $type] = array(
       '#type' => 'checkbox',
       '#title' => t('@s: reset publishing options when cloned', array('@s' => $name)),
-      '#default_value' => variable_get('clone_reset_' . $type, FALSE),
+      '#default_value' => config_get('clone.settings', 'clone_reset_' . $type),
     );
   }
 
@@ -68,12 +68,30 @@ function clone_settings($form, &$form_state) {
   $form['omit']['clone_omitted'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Omitted content types'),
-    '#default_value' => variable_get('clone_omitted', array()),
+    '#default_value' => config_get('clone.settings', 'clone_omitted'),
     '#options' => $types,
     '#description' => t('Select any node types which should <em>never</em> be cloned. In other words, all node types where cloning will fail.'),
   );
 
-  return system_settings_form($form);
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+  return $form;
+}
+
+/**
+ * Submit handler for module_settings_form().
+ */
+function clone_settings_submit($form, &$form_state) {
+$config = config('clone.settings');
+foreach ($form_state['values'] as $key => $value)
+{
+$config->set($key, $value);
+}
+
+$config->save();
+backdrop_set_message(t('The configuration options have been saved.'));
 }
 
 /**
@@ -81,20 +99,20 @@ function clone_settings($form, &$form_state) {
  */
 function clone_node_check($node) {
 
-  $method = variable_get('clone_method', 'prepopulate');
+  $method = config_get('clone.settings', 'clone_method');
 
   switch ($method) {
     case 'save-edit':
-      if (variable_get('clone_nodes_without_confirm', FALSE)) {
+      if (config_get('clone.settings', 'clone_nodes_without_confirm')) {
         $new_nid = clone_node_save($node->nid);
         $options = array();
         if (!empty($_GET['node-clone-destination'])) {
           $options['query']['destination'] = $_GET['node-clone-destination'];
         }
-        drupal_goto('node/' . $new_nid . '/edit', $options);
+        backdrop_goto('node/' . $new_nid . '/edit', $options);
       }
       else {
-        return drupal_get_form('clone_node_confirm', $node);
+        return backdrop_get_form('clone_node_confirm', $node);
       }
       break;
     case 'prepopulate':
@@ -133,7 +151,7 @@ function clone_node_confirm_submit($form, &$form_state) {
  * Returns NULL if no existing link, or links are not to be cloned.
  */
 function clone_node_clone_menu_link($node) {
-  if (variable_get('clone_menu_links', FALSE) && function_exists('menu_node_prepare')) {
+  if (config_get('clone.settings', 'clone_menu_links') && function_exists('menu_node_prepare')) {
     // This will fetch the existing menu link if the node had one.
     menu_node_prepare($node);
 
@@ -173,15 +191,15 @@ function clone_node_prepopulate($original_node) {
 
     if (clone_is_permitted($original_node->type)) {
       $node = _clone_node_prepare($original_node, TRUE);
-      drupal_set_title($node->title);
+      backdrop_set_title($node->title);
       // Let other modules do special fixing up.
       $context = array('method' => 'prepopulate', 'original_node' => $original_node);
-      drupal_alter('clone_node', $node, $context);
+      backdrop_alter('clone_node', $node, $context);
       // Make sure the file defining the node form is loaded.
       $form_state = array();
       $form_state['build_info']['args'] = array($node);
       form_load_include($form_state, 'inc', 'node', 'node.pages');
-      return drupal_build_form($node->type .'_node_form', $form_state);
+      return backdrop_build_form($node->type .'_node_form', $form_state);
     }
   }
 }
@@ -197,7 +215,7 @@ function clone_node_save($nid, $account = NULL) {
       $node = _clone_node_prepare($original_node, TRUE, $account);
       // Let other modules do special fixing up.
       $context = array('method' => 'save-edit', 'original_node' => $original_node);
-      drupal_alter('clone_node', $node, $context);
+      backdrop_alter('clone_node', $node, $context);
 
       node_save($node);
       if (module_exists('rules')) {
@@ -227,7 +245,7 @@ function _clone_node_prepare($original_node, $prefix_title = FALSE, $account = N
   $node->vuuid = NULL;
 
   // Anyonmymous users don't have a name.
-  // @see: drupal_anonymous_user().
+  // @see: backdrop_anonymous_user().
   $node->name = isset($account->name) ? $account->name : NULL;
   $node->uid = $account->uid;
 
@@ -245,8 +263,9 @@ function _clone_node_prepare($original_node, $prefix_title = FALSE, $account = N
   // Add an extra property as a flag.
   $node->clone_from_original_nid = $original_node->nid;
 
-  if (variable_get('clone_reset_'. $node->type, FALSE)) {
-    $node_options = variable_get('node_options_'. $node->type, array('status', 'promote'));
+  if (config_get('clone.settings', 'clone_reset_'. $node->type)) {
+    // $node_options = config_get('clone.settings', 'node_options_'. $node->type);
+    $node_options = array('status', 'promote');
     // Fill in the default values.
     foreach (array('status', 'moderate', 'promote', 'sticky', 'revision') as $key) {
       // Cast to int since that's how they need to be saved to the DB.

@@ -5,20 +5,14 @@
  */
 
 /**
- * Implementation of hook_help().
+ * Implements hook_config_info().
  */
-function clone_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#clone':
-      $output = '<p>' . t('The clone module allows users to make a copy of an existing node and then edit that copy. The authorship is set to the current user, the menu and url aliases are reset, and the words "Clone of" are inserted into the title to remind you that you are not editing the original node.') . '</p>';
-      $output .= '<p>' . t('Users with the "clone node" permission can utilize this functionality. A new tab will appear on node pages with the word "Clone".') . '</p>';
-      return $output;
-    case 'node/%/clone':
-      $method = variable_get('clone_method', 'prepopulate');
-      if ($method == 'prepopulate') {
-        return t('This clone will not be saved to the database until you submit.');
-      }
-  }
+function clone_config_info() {
+  $prefixes['clone.settings'] = array(
+    'label' => t('clone settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
 }
 
 /**
@@ -37,7 +31,7 @@ function clone_permission() {
 function clone_menu() {
   $items['admin/config/content/clone'] = array(
     'access arguments' => array('administer site configuration'),
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('clone_settings'),
     'title' => 'Node clone module',
     'file' => 'clone.pages.inc',
@@ -85,8 +79,8 @@ function clone_token_to_arg($arg, $map) {
  *   Either 'confirm' or a CSRF token.
  */
 function clone_get_token($nid) {
-  if (variable_get('clone_nodes_without_confirm', FALSE)) {
-    return drupal_get_token('clone_access_cloning-' . $nid);
+  if (config_get('clone.settings', 'clone_nodes_without_confirm')) {
+    return backdrop_get_token('clone_access_cloning-' . $nid);
   }
   return 'confirm';
 }
@@ -104,12 +98,12 @@ function clone_access_cloning($node, $check_token = FALSE, $token = FALSE) {
   // Make sure the user can view the original node content, and create a new one..
   $access = $access && node_access('view', $node) && node_access('create', $node->type);
   // Let other modules alter this.
-  drupal_alter("clone_access", $access, $node);
+  backdrop_alter("clone_access", $access, $node);
   return $access;
 }
 
 function clone_is_permitted($type) {
-  $omitted = variable_get('clone_omitted', array());
+  $omitted = config_get('clone.settings', 'clone_omitted');
   return empty($omitted[$type]);
 }
 
@@ -121,8 +115,8 @@ function clone_action_link_title($node) {
   if (current_path() != 'node/' . $node->nid) {
     return t('Clone');
   }
-  if (variable_get('clone_use_node_type_name', 0)) {
-    return t('Clone this !type', array('!type' => drupal_strtolower(node_type_get_name($node))));
+  if (config_get('clone.settings', 'clone_use_node_type_name')) {
+    return t('Clone this !type', array('!type' => backdrop_strtolower(node_type_get_name($node))));
   }
   return t('Clone content');
 }
@@ -131,7 +125,7 @@ function clone_action_link_title($node) {
  * Implementation of hook_node_type_delete().
  */
 function clone_node_type_delete($info) {
-  variable_del('clone_reset_' . $info->type);
+  // variable_del('clone_reset_' . $info->type);
 }
 
 /**
@@ -139,9 +133,9 @@ function clone_node_type_delete($info) {
  */
 function clone_node_type_update($info) {
   if (!empty($info->old_type) && $info->old_type != $info->type) {
-    if (variable_get('clone_reset_' . $info->old_type, FALSE)) {
-      variable_del('clone_reset_' . $info->old_type);
-      variable_set('clone_reset_' . $info->type, TRUE);
+    if (config_get('clone.settings', 'clone_reset_' . $info->old_type)) {
+      // variable_del('clone_reset_' . $info->old_type);
+      config_set('clone.settings', 'clone_reset_' . $info->type, TRUE);
     }
   }
 }
@@ -152,7 +146,7 @@ function clone_node_type_update($info) {
 function clone_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'clone') . '/views',
+    'path' => backdrop_get_path('module', 'clone') . '/views',
   );
 }
 
@@ -160,7 +154,7 @@ function clone_views_api() {
  * Implementation of hook_admin_paths().
  */
 function clone_admin_paths() {
-  if (variable_get('node_admin_theme')) {
+  if (config_get('system.core', 'node_admin_theme')) {
     $paths = array(
       'node/*/clone/*' => TRUE,
     );
@@ -187,8 +181,8 @@ function clone_form_node_form_alter(&$form, $form_state, $form_id) {
  * Implements hook_form_FORM_ID_alter().
  */
 function clone_form_node_admin_content_alter(&$form, $form_state, $form_id) {
-  if (variable_get('clone_method', 'prepopulate') == 'prepopulate') {
-    $destination = drupal_get_destination();
+  if (config_get('clone.settings', 'clone_method') == 'prepopulate') {
+    $destination = backdrop_get_destination();
   }
   else {
     $destination = array();
@@ -276,14 +270,14 @@ function clone_action_clone($original_node, $context) {
     }
     // Let other modules do special fixing up.
     $context = array('method' => 'action', 'original_node' => $original_node, 'clone_context' => $val);
-    drupal_alter('clone_node', $node, $context);
+    backdrop_alter('clone_node', $node, $context);
     node_save($node);
     if (module_exists('rules')) {
       rules_invoke_event('clone_node', $node, $original_node);
     }
   }
   else {
-    drupal_set_message(t('Clone failed for %title : not permitted for nodes of type %type', array('%title' => $original_node->title, '%type' => $original_node->type)), 'warning');
+    backdrop_set_message(t('Clone failed for %title : not permitted for nodes of type %type', array('%title' => $original_node->title, '%type' => $original_node->type)), 'warning');
   }
 }
 

@@ -17,7 +17,7 @@
  *   - 'original_node' : The original fully loaded node object being cloned.
  *
  * @see clone_node_save()
- * @see drupal_alter()
+ * @see backdrop_alter()
  */
 function hook_clone_node_alter(&$node, $context) {
   if ($context['original_node']->type == 'special') {
@@ -35,7 +35,7 @@ function hook_clone_node_alter(&$node, $context) {
  *   The fully loaded node object being considered for cloning.
  *
  * @see clone_access_cloning()
- * @see drupal_alter()
+ * @see backdrop_alter()
  */
 function hook_clone_access_alter(&$access, $node) {
   global $user;
