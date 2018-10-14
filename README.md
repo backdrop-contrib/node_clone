@@ -4,59 +4,19 @@ Node Clone
 The Clone module allows users to make a copy of an existing node and then edit
 that copy easily.  This module has also been used by some to facilitate node templating.
 
-CONTENTS OF THIS FILE
----------------------
-
- - Introduction
- - Tested
- - Known Issues
- - Special Thanks
- - Requirements
- - Installation
- - Coming From Drupal?
- - Usage
- - License
- - Credits
- - Maintainers
-
-TESTED
------
-
-Working in Backdrop 1.3 for cloning nodes, but not all the options/use-cases have been tested yet.
-
-KNOWN ISSUES
----------------------
+Known Issues
+------------
 
 The Rules and Views portions of this module have not been ported yet.
 
-SPECIAL THANKS
---------------
-
-Peter Wolanin <https://www.drupal.org/u/pwolanin> for the initial setup.
-
-REQUIREMENTS
-------------
-
-none
-
-INSTALLATION
+Installation
 ------------
 
 Install this module using the official Backdrop CMS instructions at https://backdropcms.org/guide/modules
 
 Setup your options at: /admin/config/content/clone
 
-COMING FROM DRUPAL?
--------------------
-
-Nothing very much different.
-
-PERMISSIONS
-------------
-
-none
-
-USAGE
+Usage
 -----
 
 The clone module allows users to make a copy of an existing node and then edit
@@ -106,17 +66,17 @@ you rely on field-level permissions for important site features.
 Note: this module originally derived from code posted by Steve Ringwood
 (nevets@drupal) at http://drupal.org/node/73381#comment-137714
 
-LICENSE
+License
 -------
 
 This project is GPL v2 software. See the LICENSE.txt file in this directory for complete text.
 
-CREDITS
------------
+Credits
+-------
 
 Peter Wolanin <https://www.drupal.org/u/pwolanin>
 
-MAINTAINERS
+Maintainers
 -----------
 
 - seeking
