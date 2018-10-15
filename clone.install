@@ -28,7 +28,7 @@ function clone_install() {
 function clone_update_1000() {
   // Migrate variables to config.
   $config = config('clone.settings');
-  if ($config->isNew) {
+  if ($config->isNew()) {
     $config->set('clone_method', update_variable_get('clone_method', 'prepopulate'));
     $config->set('clone_omitted', update_variable_get('clone_omitted', array()));
     $config->set('clone_nodes_without_confirm', update_variable_get('clone_nodes_without_confirm', 0));
