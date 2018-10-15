@@ -249,14 +249,12 @@ function _clone_node_prepare($original_node, $prefix_title = FALSE, $account = N
   $node->clone_from_original_nid = $original_node->nid;
 
   if (config_get('clone.settings', 'clone_reset_'. $node->type)) {
-    // $node_options = config_get('clone.settings', 'node_options_'. $node->type);
-    $node_options = array('status', 'promote');
-    // Fill in the default values.
-    foreach (array('status', 'moderate', 'promote', 'sticky', 'revision') as $key) {
-      // Cast to int since that's how they need to be saved to the DB.
-      $node->$key = (int) in_array($key, $node_options);
+    $config = config('node.type.' . $node->type);
+    foreach (array('comment', 'status', 'promote', 'sticky', 'revision') as $key) {
+      $node->$key = $config->get('settings.' . $key . '_default');
     }
   }
+
   return $node;
 }
 
