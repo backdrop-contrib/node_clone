@@ -43,7 +43,7 @@ function clone_menu() {
     'access arguments' => array('administer site configuration'),
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('clone_settings'),
-    'title' => 'Node clone module',
+    'title' => 'Node Clone settings',
     'file' => 'clone.pages.inc',
     'description' => 'Allows users to clone (copy then edit) an existing node.',
   );
