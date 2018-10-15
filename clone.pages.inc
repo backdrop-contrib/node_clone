@@ -9,6 +9,7 @@
  */
 function clone_settings($form, &$form_state) {
 
+  $form['#config'] = 'clone.settings';
   $form['basic'] = array(
     '#type' => 'fieldset',
     '#title' => t('General settings'),
@@ -73,25 +74,7 @@ function clone_settings($form, &$form_state) {
     '#description' => t('Select any node types which should <em>never</em> be cloned. In other words, all node types where cloning will fail.'),
   );
 
-  $form['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save configuration'),
-  );
-  return $form;
-}
-
-/**
- * Submit handler for module_settings_form().
- */
-function clone_settings_submit($form, &$form_state) {
-$config = config('clone.settings');
-foreach ($form_state['values'] as $key => $value)
-{
-$config->set($key, $value);
-}
-
-$config->save();
-backdrop_set_message(t('The configuration options have been saved.'));
+  return system_settings_form($form);
 }
 
 /**

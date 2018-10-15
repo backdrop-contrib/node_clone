@@ -15,6 +15,16 @@ function clone_config_info() {
   return $prefixes;
 }
 
+
+/**
+ * Implements hook_autoload_info()
+ */
+function clone_autoload_info() {
+  return array(
+    'views_handler_field_node_link_clone' => 'views/views_handler_field_node_link_clone.inc',
+  );
+}
+
 /**
  * Implementation of hook_permission().
  */
@@ -228,7 +238,7 @@ function clone_action_info() {
   return array(
     'clone_action_clone' => array(
       'type' => 'node',
-      'label' => t('Clone item'),
+      'label' => t('Clone content'),
       'configurable' => TRUE,
       'hooks' => array('any' => TRUE),
       'triggers' => array('any'),
