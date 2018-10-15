@@ -4,11 +4,6 @@ Node Clone
 The Clone module allows users to make a copy of an existing node and then edit
 that copy easily.  This module has also been used by some to facilitate node templating.
 
-Known Issues
-------------
-
-The Rules and Views portions of this module have not been ported yet.
-
 Installation
 ------------
 
@@ -46,9 +41,9 @@ Settings can be accessed at admin/config/content/clone.  On this page you can
 set whether the publishing options are reset when making a clone of a node.
 This is set for each node type individually.
 
-This module seems to work with common node types, however YMMV, especially with
-nodes that have any sort of image or file  attachments.  In all cases, but
-especially if you are using a complex (non-core) field or custom node type,
+This module seems to work with common node types, however YMMV (your mileage may vary),
+especially with nodes that have any sort of image or file  attachments.  In all cases, 
+but especially if you are using a complex (non-core) field or custom node type,
 you should evaluate this module on a test site with a copy of your database
 before attempting to use it on a live site. On the settings page you may choose
 node types to be omitted from the cloning mechanism - no users will be able
