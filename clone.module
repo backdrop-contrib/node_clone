@@ -15,6 +15,16 @@ function clone_config_info() {
   return $prefixes;
 }
 
+
+/**
+ * Implements hook_autoload_info()
+ */
+function clone_autoload_info() {
+  return array(
+    'views_handler_field_node_link_clone' => 'views/views_handler_field_node_link_clone.inc',
+  );
+}
+
 /**
  * Implementation of hook_permission().
  */
@@ -33,7 +43,7 @@ function clone_menu() {
     'access arguments' => array('administer site configuration'),
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('clone_settings'),
-    'title' => 'Node clone module',
+    'title' => 'Node Clone settings',
     'file' => 'clone.pages.inc',
     'description' => 'Allows users to clone (copy then edit) an existing node.',
   );
@@ -228,7 +238,7 @@ function clone_action_info() {
   return array(
     'clone_action_clone' => array(
       'type' => 'node',
-      'label' => t('Clone item'),
+      'label' => t('Clone content'),
       'configurable' => TRUE,
       'hooks' => array('any' => TRUE),
       'triggers' => array('any'),

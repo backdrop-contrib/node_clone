@@ -1,7 +1,5 @@
-name = "Node clone"
-description = "Allows users to clone (copy then edit) an existing node."
+name = "Node Clone"
+description = "Allows users to clone (copy then edit) existing content."
 backdrop = 1.x
-version = 1.x-1.x
 type = module
-files[] = views/views_handler_field_node_link_clone.inc
 configure = admin/config/content/clone

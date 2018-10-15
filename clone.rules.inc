@@ -55,7 +55,7 @@ function clone_rules_action_info() {
 function clone_action_node_clone($node) {
   include_once backdrop_get_path('module', 'clone') . '/clone.pages.inc';
   $new_nid = clone_node_save($node->nid);
-  $new_node = entity_load_single('node', $new_nid);
+  $new_node = entity_load('node', $new_nid);
   return array(
     'clone' => $new_node,
   );

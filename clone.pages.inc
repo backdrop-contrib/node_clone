@@ -8,7 +8,9 @@
  * Menu callback to configure module settings.
  */
 function clone_settings($form, &$form_state) {
+  $config = config('clone.settings');
 
+  $form['#config'] = 'clone.settings';
   $form['basic'] = array(
     '#type' => 'fieldset',
     '#title' => t('General settings'),
@@ -17,12 +19,12 @@ function clone_settings($form, &$form_state) {
     '#type' => 'radios',
     '#title' => t('Method to use when cloning a node'),
     '#options' => array('prepopulate' => t('Pre-populate the node form fields'), 'save-edit' => t('Save as a new node then edit')),
-    '#default_value' => config_get('clone.settings', 'clone_method'),
+    '#default_value' => $config->get('clone_method'),
   );
   $form['basic']['clone_nodes_without_confirm'] = array(
     '#type' => 'radios',
     '#title' => t('Confirmation mode when using the "Save as a new node then edit" method'),
-    '#default_value' => (int)config_get('clone.settings', 'clone_nodes_without_confirm'),
+    '#default_value' => (int)$config->get('clone_nodes_without_confirm'),
     '#options' => array(t('Require confirmation (recommended)'), t('Bypass confirmation')),
     '#description' => t('A new node may be saved immediately upon clicking the "clone" link when viewing a node, bypassing the normal confirmation form.'),
     '#states' => array(
@@ -36,13 +38,13 @@ function clone_settings($form, &$form_state) {
     '#type' => 'radios',
     '#title' => t('Clone menu links'),
     '#options' => array(0 => t('No'), 1 => t('Yes')),
-    '#default_value' => (int) config_get('clone.settings', 'clone_menu_links'),
+    '#default_value' => (int) $config->get('clone_menu_links'),
     '#description' => t('Should any menu link for a node also be cloned?'),
   );
   $form['basic']['clone_use_node_type_name'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use node type name in clone link'),
-    '#default_value' => (int) config_get('clone.settings', 'clone_use_node_type_name'),
+    '#default_value' => (int) $config->get('clone_use_node_type_name'),
     '#description' => t('If checked, the link to clone the node will contain the node type name, for example, "Clone this article", otherwise it will read "Clone content".'),
   );
 
@@ -56,7 +58,7 @@ function clone_settings($form, &$form_state) {
     $form['publishing']['clone_reset_' . $type] = array(
       '#type' => 'checkbox',
       '#title' => t('@s: reset publishing options when cloned', array('@s' => $name)),
-      '#default_value' => config_get('clone.settings', 'clone_reset_' . $type),
+      '#default_value' => $config->get('clone_reset_' . $type),
     );
   }
 
@@ -68,42 +70,25 @@ function clone_settings($form, &$form_state) {
   $form['omit']['clone_omitted'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Omitted content types'),
-    '#default_value' => config_get('clone.settings', 'clone_omitted'),
+    '#default_value' => $config->get('clone_omitted'),
     '#options' => $types,
     '#description' => t('Select any node types which should <em>never</em> be cloned. In other words, all node types where cloning will fail.'),
   );
 
-  $form['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save configuration'),
-  );
-  return $form;
-}
-
-/**
- * Submit handler for module_settings_form().
- */
-function clone_settings_submit($form, &$form_state) {
-$config = config('clone.settings');
-foreach ($form_state['values'] as $key => $value)
-{
-$config->set($key, $value);
-}
-
-$config->save();
-backdrop_set_message(t('The configuration options have been saved.'));
+  return system_settings_form($form);
 }
 
 /**
  *  Menu callback: prompt the user to confirm the operation
  */
 function clone_node_check($node) {
+  $config = config('clone.settings');
 
-  $method = config_get('clone.settings', 'clone_method');
+  $method = $config->get('clone_method');
 
   switch ($method) {
     case 'save-edit':
-      if (config_get('clone.settings', 'clone_nodes_without_confirm')) {
+      if ($config->get('clone_nodes_without_confirm')) {
         $new_nid = clone_node_save($node->nid);
         $options = array();
         if (!empty($_GET['node-clone-destination'])) {
@@ -244,7 +229,7 @@ function _clone_node_prepare($original_node, $prefix_title = FALSE, $account = N
   $node->uuid = NULL;
   $node->vuuid = NULL;
 
-  // Anyonmymous users don't have a name.
+  // Anonmymous users don't have a name.
   // @see: backdrop_anonymous_user().
   $node->name = isset($account->name) ? $account->name : NULL;
   $node->uid = $account->uid;

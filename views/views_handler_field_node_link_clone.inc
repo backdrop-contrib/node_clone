@@ -31,7 +31,7 @@ class views_handler_field_node_link_clone extends views_handler_field_node_link 
       $this->options['alter']['query']['node-clone-destination'] = $destination['destination'];
     }
 
-    $text = !empty($this->options['text']) ? $this->options['text'] : t('clone');
+    $text = !empty($this->options['text']) ? $this->options['text'] : t('Clone');
     return $text;
   }
 }
