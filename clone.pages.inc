@@ -47,6 +47,12 @@ function clone_settings($form, &$form_state) {
     '#default_value' => (int) $config->get('clone_use_node_type_name'),
     '#description' => t('If checked, the link to clone the node will contain the node type name, for example, "Clone this article", otherwise it will read "Clone content".'),
   );
+  $form['basic']['clone_prefix_title'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Prefix title'),
+    '#default_value' => (bool) $config->get('clone_prefix_title'),
+    '#description' => t('Should cloned node titles be prefixed?'),
+  );
 
   $form['publishing'] = array(
     '#type' => 'fieldset',
@@ -175,7 +181,9 @@ function clone_node_prepopulate($original_node) {
   if (isset($original_node->nid)) {
 
     if (clone_is_permitted($original_node->type)) {
-      $node = _clone_node_prepare($original_node, TRUE);
+      $config = config('clone.settings');
+      $prefix_title = $config->get('clone_prefix_title');
+      $node = _clone_node_prepare($original_node, $prefix_title);
       backdrop_set_title($node->title);
       // Let other modules do special fixing up.
       $context = array('method' => 'prepopulate', 'original_node' => $original_node);
@@ -197,7 +205,9 @@ function clone_node_save($nid, $account = NULL) {
 
     $original_node = node_load($nid);
     if (isset($original_node->nid) && clone_is_permitted($original_node->type)) {
-      $node = _clone_node_prepare($original_node, TRUE, $account);
+      $config = config('clone.settings');
+      $prefix_title = $config->get('clone_prefix_title');
+      $node = _clone_node_prepare($original_node, $prefix_title, $account);
       // Let other modules do special fixing up.
       $context = array('method' => 'save-edit', 'original_node' => $original_node);
       backdrop_alter('clone_node', $node, $context);
