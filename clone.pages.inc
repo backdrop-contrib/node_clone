@@ -51,7 +51,7 @@ function clone_settings($form, &$form_state) {
     '#type' => 'checkbox',
     '#title' => t('Prefix title'),
     '#default_value' => (bool) $config->get('clone_prefix_title'),
-    '#description' => t('Should cloned node tiles be prefixed?'),
+    '#description' => t('Should cloned node titles be prefixed?'),
   );
 
   $form['publishing'] = array(
