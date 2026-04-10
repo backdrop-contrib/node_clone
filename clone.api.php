@@ -9,14 +9,17 @@
  * Alter the node before saving a clone.
  *
  * @param $node
- *   Reference to the fully loaded node object being saved (the clone) that
- *   can be altered as needed.
+ *   Reference to the fully loaded node object being saved that can be altered
+ *   as needed. Under 'prepopulate' and 'save-edit' this is the new clone;
+ *   under 'promote' this is the target node receiving the clone's field data.
  * @param array $context
  *   An array of context describing the clone operation. The keys are:
- *   - 'method' : Can be either 'prepopulate' or 'save-edit'.
+ *   - 'method' : One of 'prepopulate', 'save-edit', or 'promote'.
  *   - 'original_node' : The original fully loaded node object being cloned.
+ *   - 'clone_node' : (promote only) The clone node being promoted.
  *
  * @see clone_node_save()
+ * @see clone_node_promote()
  * @see backdrop_alter()
  */
 function hook_clone_node_alter(&$node, $context) {

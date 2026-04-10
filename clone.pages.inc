@@ -259,6 +259,82 @@ function clone_node_save($nid, $account = NULL) {
 }
 
 /**
+ * Promotes a clone's field data back onto its original node.
+ *
+ * @param int $clone_nid
+ *   Nid of the clone.
+ * @param int $target_nid
+ *   Nid of the original node to update.
+ *
+ * @return int|FALSE
+ *   The target nid on success, or FALSE on failure.
+ */
+function clone_node_promote($clone_nid, $target_nid) {
+  $clone_node = node_load($clone_nid);
+  $target_node = node_load($target_nid);
+  if (!$clone_node || !$target_node || $clone_node->type !== $target_node->type) {
+    return FALSE;
+  }
+
+  $promoted = clone $target_node;
+
+  // Copy fields and title from the clone.
+  foreach (field_info_instances('node', $clone_node->type) as $field_name => $instance) {
+    if (property_exists($clone_node, $field_name)) {
+      $promoted->$field_name = $clone_node->$field_name;
+    }
+  }
+  $promoted->title = $clone_node->title;
+
+  // Copy publishing flags unless clone_reset_<type> is set.
+  if (!config_get('clone.settings', 'clone_reset_' . $clone_node->type)) {
+    foreach (array('comment', 'status', 'promote', 'sticky') as $key) {
+      if (property_exists($clone_node, $key)) {
+        $promoted->$key = $clone_node->$key;
+      }
+    }
+  }
+
+  // Copy path alias only if manually set (not pathauto-generated).
+  if (!empty($clone_node->path['alias']) && empty($clone_node->path['pathauto'])) {
+    $promoted->path = $clone_node->path;
+    $promoted->path['source'] = 'node/' . $target_nid;
+    $promoted->path['pid'] = NULL;
+  }
+
+  $promoted->vid = NULL;
+  $promoted->revision = TRUE;
+  $promoted->log = t('Promoted from draft clone (nid @nid)', array('@nid' => $clone_nid));
+  $promoted->original = NULL;
+
+  // Let other modules do special fixing up.
+  $context = array(
+    'method' => 'promote',
+    'original_node' => $target_node,
+    'clone_node' => $clone_node,
+  );
+  backdrop_alter('clone_node', $promoted, $context);
+
+  if ($promoted->nid != $target_nid) {
+    return FALSE;
+  }
+
+  // Remove the clone's alias before saving to avoid pathauto collisions.
+  db_delete('url_alias')
+    ->condition('source', 'node/' . $clone_nid)
+    ->execute();
+
+  node_save($promoted);
+  node_delete($clone_nid);
+
+  if (module_exists('rules')) {
+    rules_invoke_event('promote_clone_node', $promoted, $clone_node, $target_node);
+  }
+
+  return $promoted->nid;
+}
+
+/**
  *  Prepares a node to be cloned.
  */
 function _clone_node_prepare($original_node, $prefix_title = FALSE, $account = NULL) {
